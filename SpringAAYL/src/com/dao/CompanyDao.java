@@ -34,19 +34,22 @@ public class CompanyDao {
 		this.jdbcTemplate = jdbcTemplate;
 	}
 
-	public boolean validateLogin(String email, String passWord) {
+	public String validateLogin(String email, String passWord) {
 		System.out.println("entered password" + passWord);
 		try {
 			String sql = "select password from users_16329 where email='" + email + "'";
 			String pass = jdbcTemplate.queryForObject(sql, String.class);
+			String sql1 = "select firstname from users_16329 where email='" + email + "'";
+			String name = jdbcTemplate.queryForObject(sql1, String.class);
+			System.out.println("namedasg" + name);
 			System.out.println("password" + pass);
 			if (pass.equals(passWord)) {
-				return true;
+				return name;
 			} else {
-				return false;
+				return null;
 			}
 		} catch (Exception e) {
-			return false;
+			return null;
 		}
 	}
 
@@ -101,14 +104,14 @@ public class CompanyDao {
 	}
 
 	public String selectAddress(String name) {
-		System.out.println("name:"+name);
-		String sql = "select baddress from users_16329_details where cname like '"+name+"%'";
+		System.out.println("name:" + name);
+		String sql = "select baddress from users_16329_details where cname like '" + name + "%'";
 		System.out.println(sql);
-		String str1="";
+		String str1 = "";
 		try {
 			return jdbcTemplate.queryForObject(sql, String.class);
 		} catch (Exception e) {
-			return "No data found"; 
+			return "No data found";
 		}
 	}
 
@@ -117,6 +120,14 @@ public class CompanyDao {
 		String sql = "select cname from users_16329_details";
 		List<String> lt = jdbcTemplate.queryForList(sql, String.class);
 		return lt;
+	}
+
+	public List<String> getItemsList() {
+		System.out.println("inside getItemsList");
+		String sql = "select iname from users_16329_items";
+		List<String> l1 = jdbcTemplate.queryForList(sql, String.class);
+		System.out.println("list1" + l1);
+		return l1;
 	}
 
 	public String setAnswerForSec(String user, String answer) {
@@ -142,11 +153,28 @@ public class CompanyDao {
 
 	public String setDetails(String user, String cname, String caddress, String baddress) {
 		System.out.println("inside setDetails");
-		String sql1 = "insert into users_16329_details values(?,?,?,?)";
-		if (jdbcTemplate.update(sql1, cname, caddress, baddress) > 0) {
-			return "Successful updation";
-		} else
-			return "Can not insert";
+		try {
+			String sql1 = "insert into users_16329_details values(?,?,?,?)";
+			if (jdbcTemplate.update(sql1, user, cname, caddress, baddress) > 0) {
+				return "Successful updation";
+			} else
+				return "Can not insert11";
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "Details may be already inserted";
+		}
+	}
+
+	public String selectPrice(String item) {
+		System.out.println("item" + item);
+		String sql = "select price from users_16329_items where iname like '" + item + "%'";
+		System.out.println(sql);
+		String str1 = "";
+		try {
+			return jdbcTemplate.queryForObject(sql, String.class);
+		} catch (Exception e) {
+			return "No data found";
+		}
 	}
 
 	public String resetPass(String email, String answer, String npass) {
@@ -168,6 +196,27 @@ public class CompanyDao {
 			return "Password reset unsuccessful";
 		}
 
+	}
+
+	public String saveInvoiceDetails(String user, int id, String date, String caddress, String baddress, int totalprice) {
+		String sql = "insert into users_16329_invoices values(?,?,?,?,?)";
+		System.out.println("iddd value" + id);
+		try {
+			if (jdbcTemplate.update(sql, id, date,caddress,baddress,totalprice) > 0) {
+				return "success";
+			}
+			return "failed";
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "exception";
+		}
+	}
+
+	public int getInvoiceId() {
+		String sql = "select nvl(max(id),0) from users_16329_invoices";
+		int i = jdbcTemplate.queryForObject(sql, Integer.class);
+		System.out.println("value of i" + i);
+		return i;
 	}
 
 }

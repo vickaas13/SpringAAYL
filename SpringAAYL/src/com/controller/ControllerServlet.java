@@ -43,14 +43,14 @@ public class ControllerServlet {
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	public ModelAndView loginCheck(@RequestParam("email") String email, @RequestParam("passWord") String passWord,
 			Model model) {
-		if (daobean.validateLogin(email, passWord)) {
+		String name=daobean.validateLogin(email, passWord);
+		if (name!=null) {
 			System.out.println("email" + email);
-			msg = "Welcome " + email;
 			ModelAndView modelAndView = new ModelAndView();
 			modelAndView.addObject("user", email);
 			model.addAttribute("user", email);
 			System.out.println("email1" + email);
-			model.addAttribute("msg", msg);
+			model.addAttribute("msg", name);
 			return new ModelAndView("success", "message", "");
 
 		} else {
@@ -107,6 +107,15 @@ public class ControllerServlet {
 		
 	}
 	
+	@RequestMapping("/selectPrice")
+	public @ResponseBody  Double selectPriceOfItem(@RequestParam("nameforselect1") String item){
+		System.out.println("inside selectprice");
+		System.out.println("item"+item);
+		double d = Double.parseDouble(daobean.selectPrice(item));
+		return d;
+		
+	}
+	
 	@RequestMapping(value="/forgot-password", method=RequestMethod.POST)
 	public ModelAndView resetPassword(@RequestParam("email") String email,@RequestParam("answer")String answer, @RequestParam("npass")String npass,Model model){
 		model.addAttribute("msg","Welcome "+email);
@@ -118,14 +127,37 @@ public class ControllerServlet {
 		HashMap<String,Object> model=new HashMap<String,Object>();
 		List<Map> l = daobean.getCompanyAddress(user);
 		List<String> l1 = daobean.getCompanyList();
+		List<String> l2 = daobean.getItemsList();
+		System.out.println("l2:data"+l2);
 		ModelAndView mav = new ModelAndView();
 		model.put("flist1", l);
 		model.put("flist2", l1);
-		model.put("message", "this is invoice page");
+		model.put("flist3", l2);
 		//mav.addObject("list", l);
 		return new ModelAndView("invoice","model",model);
 	}
-
+	
+	@RequestMapping(value = "/saveInvoice", method = RequestMethod.GET)
+	public @ResponseBody String saveInvoice1(@ModelAttribute("user") String user,@RequestParam("id") int id,
+			@RequestParam("duedate") String date,
+			@RequestParam("caddress") String caddress,
+			@RequestParam("baddress") String baddress,@RequestParam("totalprice") int totalprice){
+		System.out.println("save invoice"+id+" "+date+" "+caddress+" "+baddress+" "+totalprice);
+		String str = daobean.saveInvoiceDetails(user,id,date,caddress,baddress,totalprice);
+		if(str.equals("success")){
+			return "successful";
+		}
+		return "failure";
+	}
+	
+	@RequestMapping(value = "/getCurrentInvoiceId", method = RequestMethod.POST)
+	public @ResponseBody int getInvoiceId(@ModelAttribute("user") String user){
+		int i = daobean.getInvoiceId();
+		i++;
+		System.out.println("i value:"+i);
+		return i;		
+	}
+	
 	@RequestMapping(value = "/logout", method = RequestMethod.POST)
 	public ModelAndView Logout(SessionStatus status) {
 		status.setComplete();
