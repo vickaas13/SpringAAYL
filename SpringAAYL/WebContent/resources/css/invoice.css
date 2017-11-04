@@ -58,9 +58,10 @@
 	border-bottom: none;
 }
 
-.invoice-box table tr.total td:nth-child(2) {
-	border-top: 2px solid #eee;
+.invoice-box table tr.total td:nth-child(3) {
 	font-weight: bold;
+	border-top: 2px solid #eee;
+	
 }
 
 @media only screen and (max-width: 600px) {
